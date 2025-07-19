@@ -73,55 +73,70 @@ void setup()
            "comp temp[°C], comp humidity [%], gas percentage";
   Serial.println(output);
 
-  connectToWiFi();
-  macAddress = getMACAddress();
-  Serial.println(macAddress);
+  // connectToWiFi();
+  // macAddress = getMACAddress();
+  // Serial.println(macAddress);
 
-  if (WiFi.status() == WL_CONNECTED)
-  {
-    deviceRegistered = isDeviceRegistered();
-    if (!deviceRegistered)
-    {
-      requestDevice();
-    }
-  }
+  // if (WiFi.status() == WL_CONNECTED)
+  // {
+  //   deviceRegistered = isDeviceRegistered();
+  //   if (!deviceRegistered)
+  //   {
+  //     requestDevice();
+  //   }
+  // }
 }
 
 void loop()
 {
   unsigned long currentTime = millis();
 
-  if (deviceDeclined)
-  {
-    if (currentTime - lastSensorReadingTime >= sensorReadingInterval)
-    {
-      if (!readSensorData())
-      {
-        readI2CBUS();
-      }
-      lastSensorReadingTime = currentTime;
-    }
-    return;
-  }
+  // if (deviceDeclined)
+  // {
+  //   if (currentTime - lastSensorReadingTime >= sensorReadingInterval)
+  //   {
+  //     if (!readSensorData())
+  //     {
+  //       readI2CBUS();
+  //     }
+  //     lastSensorReadingTime = currentTime;
+  //   }
+  //   return;
+  // }
 
-  if (WiFi.status() != WL_CONNECTED)
-  {
-    Serial.println("WiFi connection lost. Reconnecting...");
-    connectToWiFi();
-    return;
-  }
+  // if (WiFi.status() != WL_CONNECTED)
+  // {
+  //   Serial.println("WiFi connection lost. Reconnecting...");
+  //   connectToWiFi();
+  //   return;
+  // }
 
-  if (!deviceRequested || !deviceRegistered)
-  {
-    requestDevice();
-    delay(3000);
-    return;
-  }
+  // if (!deviceRequested || !deviceRegistered)
+  // {
+  //   requestDevice();
+  //   delay(3000);
+  //   return;
+  // }
+
+  // if (currentTime - lastSensorReadingTime >= sensorReadingInterval)
+  // {
+  //   sendSensorReading();
+  //   lastSensorReadingTime = currentTime;
+  // }
 
   if (currentTime - lastSensorReadingTime >= sensorReadingInterval)
   {
-    sendSensorReading();
+    readSensorData();
     lastSensorReadingTime = currentTime;
+
+    String jsonData = "{\"DeviceMacAddress\":\"" + macAddress +
+                    "\",\"temperature\":" + String(iaqSensor.temperature) +
+                    ",\"humidity\":" + String(iaqSensor.humidity) +
+                    ",\"airQualityIndex\":" + String(iaqSensor.iaq) +
+                    ",\"carbondioxide\":" + String(iaqSensor.co2Equivalent) + "}";
+
+  Serial.println("Sending sensor data...");
+  Serial.println(jsonData);
   }
 }
 
